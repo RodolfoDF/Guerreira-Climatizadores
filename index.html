@@ -9,157 +9,120 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <style>
-  :root{--navy:#16324f;--navy2:#1f3a5f;--band:#fff3cd;--danger:#c0392b;}
-  body{-webkit-text-size-adjust:100%;}
+  :root{--navy:#16324f;--navy2:#1f3a5f;--band:#fff3cd;}
+  *{-webkit-tap-highlight-color:transparent;}
+  body{-webkit-text-size-adjust:100%;padding-bottom:88px;}
   .navy{background:var(--navy);}
-  .band{background:var(--band);}
-  input,select,textarea{outline:none;}
-  .cellwarn{background:#fdecea !important;box-shadow:inset 0 0 0 1px #e57373;}
-  .cellok{}
-  /* horizontal scroll container for the matrix on phones */
-  .matrix-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;}
-  select.cnaselect{min-width:56px;}
+  .lbl{font-size:11px;font-weight:600;color:#64748b;display:block;margin-bottom:2px;}
+  .inp{width:100%;border:1px solid #cbd5e1;border-radius:10px;padding:9px 11px;font-size:15px;background:#fff;}
+  .inp:focus{border-color:var(--navy2);box-shadow:0 0 0 2px rgba(31,58,95,.15);}
+  .warn{background:#fdecea !important;border-color:#e57373 !important;}
+  .ref{color:#94a3b8;}                 /* valor de referência ainda não conferido */
+  .badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;}
+  .b-ok{background:#d1fae5;color:#065f46;} .b-pd{background:#fef3c7;color:#92400e;} .b-in{background:#fee2e2;color:#991b1b;}
+  select.inp{-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='3'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px;}
+  .photo-slot{aspect-ratio:1;border:1.5px dashed #cbd5e1;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:10px;color:#64748b;text-align:center;overflow:hidden;position:relative;background:#f8fafc;cursor:pointer;}
+  .photo-slot.filled{border-style:solid;border-color:#16324f;}
+  .photo-slot img{width:100%;height:100%;object-fit:cover;}
+  .photo-slot .rm{position:absolute;top:2px;right:2px;background:rgba(0,0,0,.55);color:#fff;border-radius:6px;font-size:10px;padding:1px 5px;}
   @media print{.noprint{display:none;}}
 </style>
 </head>
 <body class="bg-slate-100 text-slate-800">
 
-<!-- ===================== HEADER ===================== -->
-<header class="navy text-white">
-  <div class="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3">
-    <div class="w-10 h-10 rounded bg-white/10 flex items-center justify-center font-black text-lg">G</div>
+<header class="navy text-white sticky top-0 z-30" style="padding-top:env(safe-area-inset-top,0px)">
+  <div class="px-3 py-2.5 flex items-center gap-2">
+    <div class="w-9 h-9 rounded bg-white/10 flex items-center justify-center font-black">G</div>
     <div class="leading-tight">
-      <div class="font-bold tracking-wide">GUERREIRA CONSTRUTORA</div>
-      <div class="text-[11px] text-slate-200">Manutenção Preventiva de Climatizadores • Ultrabox</div>
+      <div class="font-bold text-sm tracking-wide">GUERREIRA CONSTRUTORA</div>
+      <div class="text-[10px] text-slate-300">Manutenção de Climatizadores • Ultrabox</div>
     </div>
-    <div class="ml-auto text-right text-[11px]">
-      <div id="netstatus" class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-100">conectando…</div>
-    </div>
+    <div id="netstatus" class="ml-auto text-[10px] px-2 py-1 rounded-full bg-emerald-500/20 text-emerald-100">…</div>
   </div>
 </header>
 
-<main class="max-w-6xl mx-auto px-3 sm:px-4 py-4 space-y-4">
+<main class="px-3 py-3 space-y-3 max-w-3xl mx-auto">
 
-  <!-- ===================== 1. LOJA ===================== -->
-  <section class="bg-white rounded-xl shadow-sm border border-slate-200">
-    <div class="navy text-white text-sm font-semibold px-4 py-2 rounded-t-xl">1. IDENTIFICAÇÃO DA LOJA E DA VISITA</div>
-    <div class="p-4 space-y-3">
-      <div class="flex flex-wrap gap-2 items-end">
-        <div class="flex-1 min-w-[200px]">
-          <label class="text-xs font-semibold text-slate-500">Loja</label>
-          <select id="selLoja" class="w-full border rounded-lg px-3 py-2 text-sm"></select>
+  <!-- 1. LOJA -->
+  <section class="bg-white rounded-2xl shadow-sm">
+    <div class="navy text-white text-sm font-semibold px-4 py-2.5 rounded-t-2xl">1. Loja e visita</div>
+    <div class="p-3 space-y-3">
+      <div>
+        <label class="lbl">Loja</label>
+        <div class="flex gap-2">
+          <select id="selLoja" class="inp"></select>
+          <button id="btnNovaLoja" class="noprint px-3 rounded-lg border border-slate-300 text-lg" title="Nova loja">＋</button>
+          <button id="btnRecarregar" class="noprint px-3 rounded-lg border border-slate-300 text-lg" title="Recarregar">↻</button>
         </div>
-        <button id="btnNovaLoja" class="noprint text-sm px-3 py-2 rounded-lg border border-slate-300 hover:bg-slate-50">+ Nova loja</button>
-        <button id="btnRecarregar" class="noprint text-sm px-3 py-2 rounded-lg border border-slate-300 hover:bg-slate-50">↻</button>
       </div>
-
-      <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
-        <div><label class="lbl">Rede / Cliente</label><input id="fCliente" class="inp"></div>
-        <div><label class="lbl">Código da loja</label><input id="fCodigo" class="inp"></div>
+      <div class="grid grid-cols-2 gap-2">
+        <div class="col-span-2"><label class="lbl">Rede / Cliente</label><input id="fCliente" class="inp"></div>
+        <div><label class="lbl">Código</label><input id="fCodigo" class="inp"></div>
         <div><label class="lbl">CNPJ</label><input id="fCnpj" class="inp"></div>
         <div class="col-span-2"><label class="lbl">Endereço</label><input id="fEndereco" class="inp"></div>
         <div><label class="lbl">Cidade / UF</label><input id="fCidade" class="inp"></div>
         <div><label class="lbl">Data da visita</label><input id="fData" type="date" class="inp"></div>
-        <div><label class="lbl">Visita trimestral Nº</label><input id="fVisitaNum" class="inp" placeholder="1"></div>
+        <div><label class="lbl">Visita trim. Nº</label><input id="fVisitaNum" class="inp" inputmode="numeric" placeholder="1"></div>
         <div><label class="lbl">Próxima visita</label><input id="fProxima" type="date" class="inp"></div>
         <div><label class="lbl">Nº da OS</label><input id="fOs" class="inp"></div>
-        <div><label class="lbl">Técnico responsável</label><input id="fTecnico" class="inp"></div>
-        <div><label class="lbl">Registro / CREA</label><input id="fCrea" class="inp"></div>
         <div><label class="lbl">Modelo</label><input id="fModelo" class="inp" value="ROTOPLAST 110T TOUCH (Teto)" readonly></div>
+        <div><label class="lbl">Técnico</label><input id="fTecnico" class="inp"></div>
+        <div><label class="lbl">Registro / CREA</label><input id="fCrea" class="inp"></div>
       </div>
     </div>
   </section>
 
-  <!-- ===================== 2. RESUMO ===================== -->
-  <section class="bg-white rounded-xl shadow-sm border border-slate-200">
-    <div class="navy text-white text-sm font-semibold px-4 py-2 rounded-t-xl">2. RESUMO DA VISITA (calculado automaticamente)</div>
-    <div class="p-4 grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
-      <div class="rounded-lg border p-3"><div class="text-3xl font-bold" id="rTotal">0</div><div class="text-xs text-slate-500">Inspecionados</div></div>
-      <div class="rounded-lg border p-3 bg-emerald-50"><div class="text-3xl font-bold text-emerald-700" id="rOk">0</div><div class="text-xs text-slate-500">OK / operando</div></div>
-      <div class="rounded-lg border p-3 bg-amber-50"><div class="text-3xl font-bold text-amber-700" id="rPend">0</div><div class="text-xs text-slate-500">Com pendência</div></div>
-      <div class="rounded-lg border p-3 bg-red-50"><div class="text-3xl font-bold text-red-700" id="rInop">0</div><div class="text-xs text-slate-500">Inoperantes</div></div>
+  <!-- 2. RESUMO -->
+  <section class="bg-white rounded-2xl shadow-sm">
+    <div class="navy text-white text-sm font-semibold px-4 py-2.5 rounded-t-2xl">2. Resumo (automático)</div>
+    <div class="p-3 grid grid-cols-4 gap-2 text-center">
+      <div class="rounded-xl border p-2"><div class="text-2xl font-bold" id="rTotal">0</div><div class="text-[10px] text-slate-500">Total</div></div>
+      <div class="rounded-xl border p-2 bg-emerald-50"><div class="text-2xl font-bold text-emerald-700" id="rOk">0</div><div class="text-[10px] text-slate-500">OK</div></div>
+      <div class="rounded-xl border p-2 bg-amber-50"><div class="text-2xl font-bold text-amber-700" id="rPend">0</div><div class="text-[10px] text-slate-500">Pendência</div></div>
+      <div class="rounded-xl border p-2 bg-red-50"><div class="text-2xl font-bold text-red-700" id="rInop">0</div><div class="text-[10px] text-slate-500">Inoperante</div></div>
     </div>
   </section>
 
-  <!-- ===================== 3. MATRIZ ===================== -->
-  <section class="bg-white rounded-xl shadow-sm border border-slate-200">
-    <div class="navy text-white text-sm font-semibold px-4 py-2 rounded-t-xl flex items-center gap-2">
-      <span>3. CHECKLIST POR EQUIPAMENTO</span>
-      <span class="ml-auto text-[11px] font-normal text-slate-200">C = Conforme • NC = Não Conforme • NA = Não Aplicável</span>
+  <!-- 3. EQUIPAMENTOS -->
+  <section class="bg-white rounded-2xl shadow-sm">
+    <div class="navy text-white text-sm font-semibold px-4 py-2.5 rounded-t-2xl flex items-center gap-2">
+      <span>3. Equipamentos</span>
+      <button id="btnExpandAll" class="noprint ml-auto text-[11px] font-normal bg-white/15 rounded-full px-2 py-0.5">expandir todos</button>
     </div>
-    <div class="px-4 pt-3 text-[11px] text-slate-500">
-      Valores nominais 110T Touch: <b>Tensão 220 V</b> • <b>Corr. entrada 10,7 A</b> • <b>Corr. motor 5,11 A</b> • <b>Corr. bomba 1,6 A</b>. Célula fica <span class="text-red-600 font-semibold">vermelha</span> se o valor sair de ±10% do nominal.
+    <div class="px-3 pt-2 text-[11px] text-slate-500">
+      Campos já vêm com os <b>valores de referência</b> (todos Conforme • 220 V • 10,7 A • 5,11 A • 1,6 A). Havendo anormalidade, o técnico altera — a célula fica <span class="text-red-600 font-semibold">vermelha</span> se sair de ±10%.
     </div>
-    <div class="matrix-scroll p-3">
-      <table class="text-xs border-collapse w-full" id="tblMatrix">
-        <thead>
-          <tr class="navy text-white">
-            <th class="p-1 border border-slate-500">Nº</th>
-            <th class="p-1 border border-slate-500 min-w-[110px]">TAG</th>
-            <th class="p-1 border border-slate-500 min-w-[110px]">Setor/Local</th>
-            <th class="p-1 border border-slate-500 min-w-[100px]">Nº Série</th>
-            <th class="p-1 border border-slate-500">Elétr.</th>
-            <th class="p-1 border border-slate-500">Motor</th>
-            <th class="p-1 border border-slate-500">Vent.</th>
-            <th class="p-1 border border-slate-500">Hidr.</th>
-            <th class="p-1 border border-slate-500">Placa</th>
-            <th class="p-1 border border-slate-500">Estr.</th>
-            <th class="p-1 border border-slate-500">Teste</th>
-            <th class="p-1 border border-slate-500">Tensão(V)</th>
-            <th class="p-1 border border-slate-500">C.Ent(A)</th>
-            <th class="p-1 border border-slate-500">C.Mot(A)</th>
-            <th class="p-1 border border-slate-500">C.Bomba(A)</th>
-            <th class="p-1 border border-slate-500 min-w-[90px]">Status</th>
-            <th class="p-1 border border-slate-500 min-w-[140px]">Observações</th>
-          </tr>
-        </thead>
-        <tbody id="matrixBody"></tbody>
-      </table>
-    </div>
-    <div class="px-4 pb-4 flex gap-2 noprint">
-      <button id="btnAddRow" class="text-sm px-3 py-2 rounded-lg border border-slate-300 hover:bg-slate-50">+ Equipamento</button>
-      <button id="btnDelRow" class="text-sm px-3 py-2 rounded-lg border border-slate-300 hover:bg-slate-50">− Remover última</button>
+    <div id="cards" class="p-3 space-y-2.5"></div>
+    <div class="px-3 pb-3 flex gap-2 noprint">
+      <button id="btnAddRow" class="text-sm px-3 py-2 rounded-lg border border-slate-300">+ Equipamento</button>
+      <button id="btnDelRow" class="text-sm px-3 py-2 rounded-lg border border-slate-300">− Remover último</button>
     </div>
   </section>
 
-  <!-- ===================== 4. PARECER ===================== -->
-  <section class="bg-white rounded-xl shadow-sm border border-slate-200">
-    <div class="navy text-white text-sm font-semibold px-4 py-2 rounded-t-xl">4. PARECER GERAL / OBSERVAÇÕES</div>
-    <div class="p-4 space-y-3">
-      <div class="flex flex-wrap gap-4 text-sm">
-        <label class="flex items-center gap-2"><input type="radio" name="sit" value="operando" checked> Todos operando</label>
-        <label class="flex items-center gap-2"><input type="radio" name="sit" value="pendencias"> Pendências registradas</label>
-        <label class="flex items-center gap-2"><input type="radio" name="sit" value="corretiva"> Requer nova visita / corretiva</label>
-      </div>
-      <textarea id="fParecer" rows="4" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="Observações gerais da loja…"></textarea>
+  <!-- 4. PARECER -->
+  <section class="bg-white rounded-2xl shadow-sm">
+    <div class="navy text-white text-sm font-semibold px-4 py-2.5 rounded-t-2xl">4. Parecer geral</div>
+    <div class="p-3 space-y-2">
+      <label class="flex items-center gap-2 text-sm"><input type="radio" name="sit" value="operando" checked class="w-4 h-4"> Todos operando</label>
+      <label class="flex items-center gap-2 text-sm"><input type="radio" name="sit" value="pendencias" class="w-4 h-4"> Pendências registradas</label>
+      <label class="flex items-center gap-2 text-sm"><input type="radio" name="sit" value="corretiva" class="w-4 h-4"> Requer nova visita / corretiva</label>
+      <textarea id="fParecer" rows="3" class="inp" placeholder="Observações gerais da loja…"></textarea>
     </div>
   </section>
 
-  <!-- ===================== 5. FOTOS ===================== -->
-  <section class="bg-white rounded-xl shadow-sm border border-slate-200">
-    <div class="navy text-white text-sm font-semibold px-4 py-2 rounded-t-xl">5. REGISTRO FOTOGRÁFICO</div>
-    <div class="p-4 space-y-3">
-      <label class="noprint inline-block text-sm px-3 py-2 rounded-lg bg-navy text-white cursor-pointer" style="background:var(--navy)">
-        📷 Adicionar fotos
-        <input id="inpFotos" type="file" accept="image/*" capture="environment" multiple class="hidden">
-      </label>
-      <div id="fotosGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
-    </div>
-  </section>
-
-  <!-- ===================== AÇÕES ===================== -->
-  <section class="noprint sticky bottom-0 bg-white/95 backdrop-blur border-t border-slate-200 rounded-t-xl p-3 flex flex-wrap gap-2">
-    <button id="btnSalvar" class="flex-1 min-w-[140px] text-sm font-semibold px-4 py-3 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700">💾 Salvar no sistema</button>
-    <button id="btnPdf" class="flex-1 min-w-[140px] text-sm font-semibold px-4 py-3 rounded-lg text-white" style="background:var(--navy)">📄 Gerar relatório PDF</button>
-    <button id="btnLimpar" class="text-sm px-4 py-3 rounded-lg border border-slate-300 hover:bg-slate-50">Limpar</button>
-  </section>
-
-  <p class="text-center text-[11px] text-slate-400 pb-6">Guerreira Construtora — Manutenção e Serviços Industriais • Relatório consolidado por loja • Contrato de visitas trimestrais</p>
+  <p class="text-center text-[10px] text-slate-400 pt-1 pb-2">Guerreira Construtora — Relatório consolidado por loja • Visitas trimestrais</p>
 </main>
 
-<!-- ===================== MODAL NOVA LOJA ===================== -->
-<div id="modalLoja" class="fixed inset-0 bg-black/40 hidden items-center justify-center p-4 z-50">
-  <div class="bg-white rounded-xl w-full max-w-md p-4 space-y-3">
+<!-- BARRA DE AÇÕES -->
+<div class="noprint fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur border-t z-30 flex gap-2 p-2.5" style="padding-bottom:calc(env(safe-area-inset-bottom,0px) + 10px)">
+  <button id="btnSalvar" class="flex-1 text-sm font-semibold py-3 rounded-xl bg-emerald-600 text-white">💾 Salvar</button>
+  <button id="btnPdf" class="flex-1 text-sm font-semibold py-3 rounded-xl text-white" style="background:var(--navy)">📄 Gerar PDF</button>
+  <button id="btnLimpar" class="text-sm px-4 py-3 rounded-xl border border-slate-300">Limpar</button>
+</div>
+
+<!-- MODAL NOVA LOJA -->
+<div id="modalLoja" class="fixed inset-0 bg-black/40 hidden items-end sm:items-center justify-center z-50">
+  <div class="bg-white rounded-t-2xl sm:rounded-2xl w-full sm:max-w-md p-4 space-y-3 max-h-[90vh] overflow-auto">
     <h3 class="font-semibold">Cadastrar nova loja</h3>
     <div class="grid grid-cols-2 gap-2">
       <div class="col-span-2"><label class="lbl">Nome da loja *</label><input id="nlNome" class="inp"></div>
@@ -171,33 +134,41 @@
       <div><label class="lbl">Cliente</label><input id="nlCliente" class="inp" value="Ultrabox Supermercados"></div>
       <div><label class="lbl">Data 1ª visita</label><input id="nlData" type="date" class="inp"></div>
     </div>
-    <div class="flex gap-2 justify-end pt-2">
-      <button id="nlCancel" class="text-sm px-3 py-2 rounded-lg border">Cancelar</button>
-      <button id="nlSave" class="text-sm px-3 py-2 rounded-lg bg-emerald-600 text-white">Salvar loja</button>
+    <div class="flex gap-2 justify-end pt-1">
+      <button id="nlCancel" class="text-sm px-4 py-2 rounded-lg border">Cancelar</button>
+      <button id="nlSave" class="text-sm px-4 py-2 rounded-lg bg-emerald-600 text-white">Salvar loja</button>
     </div>
   </div>
 </div>
 
-<div id="toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-sm px-4 py-2 rounded-lg opacity-0 transition pointer-events-none z-50"></div>
-
-<style>
-  .lbl{font-size:11px;font-weight:600;color:#64748b;display:block;}
-  .inp{width:100%;border:1px solid #cbd5e1;border-radius:8px;padding:6px 10px;font-size:13px;}
-</style>
+<input id="hiddenFoto" type="file" accept="image/*" capture="environment" class="hidden">
+<div id="toast" class="fixed left-1/2 -translate-x-1/2 bottom-24 bg-slate-900 text-white text-sm px-4 py-2 rounded-lg opacity-0 transition pointer-events-none z-50"></div>
 
 <script>
-/* ============================================================
-   CONFIG — Supabase (projeto GuerreiraPay)
-   ============================================================ */
+/* ===================== CONFIG SUPABASE ===================== */
 const SUPABASE_URL = "https://sgckmmhtbtpjaszbwcyo.supabase.co";
 const SUPABASE_KEY = "sb_publishable_pjrPWrF7VfA5ano3E-uB1w_pFLmgIba";
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-/* Valores nominais Rotoplast 110T Touch (INMETRO) */
 const NOMINAL = { tensao:220, entrada:10.7, motor:5.11, bomba:1.6 };
-const TOL = 0.10; // ±10%
-
-/* Tabela de dados técnicos de referência (para o PDF) */
+const TOL = 0.10;
+const SISTEMAS = [
+  {key:"eletrico_comando",label:"Elétrico / Comando"},
+  {key:"motor",label:"Motor"},
+  {key:"ventilacao_transmissao",label:"Ventilação / Transmissão"},
+  {key:"hidraulico_agua",label:"Hidráulico / Água"},
+  {key:"placa_evaporativa",label:"Placa Evaporativa"},
+  {key:"estrutura_instalacao",label:"Estrutura / Instalação"},
+  {key:"teste_funcional",label:"Teste Funcional"}
+];
+const FOTO_SLOTS = [
+  {key:"limpeza",label:"Limpeza"},
+  {key:"equip1",label:"Equipamento 1"},
+  {key:"equip2",label:"Equipamento 2"},
+  {key:"equip3",label:"Equipamento 3"},
+  {key:"placa",label:"Placa / Nº série"},
+  {key:"geral",label:"Foto geral"}
+];
 const DADOS_TEC = [
   ["Vazão de ar","45.000 m³/h"],["Tensão de alimentação","220 V (M/F)"],
   ["Corrente nominal (entrada)","10,7 A"],["Potência instalada","1,47 kW"],
@@ -210,235 +181,259 @@ const DADOS_TEC = [
   ["Dimensões (AxLxP)","1,23 x 1,62 x 1,62 m"]
 ];
 
-const SISTEMAS = ["eletrico_comando","motor","ventilacao_transmissao","hidraulico_agua","placa_evaporativa","estrutura_instalacao","teste_funcional"];
-
 let LOJAS = [];
-let FOTOS = []; // {dataUrl, tag, local, legenda}
+let EQUIPS = [];       // estado dos equipamentos da visita
+let expandAll = false;
 
-/* ============================================================
-   UTIL
-   ============================================================ */
+/* ===================== UTIL ===================== */
 const $ = s => document.querySelector(s);
-function toast(msg){ const t=$("#toast"); t.textContent=msg; t.style.opacity=1; setTimeout(()=>t.style.opacity=0,2200); }
-function net(ok,txt){ const n=$("#netstatus"); n.textContent=txt; n.className = ok? "px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-100":"px-2 py-0.5 rounded-full bg-red-500/30 text-red-100"; }
-function num(v){ const n=parseFloat(String(v).replace(",",".")); return isNaN(n)?null:n; }
-function fmtDate(d){ if(!d) return ""; const p=d.split("-"); return p.length===3? `${p[2]}/${p[1]}/${p[0]}`:d; }
+function toast(m){ const t=$("#toast"); t.textContent=m; t.style.opacity=1; setTimeout(()=>t.style.opacity=0,2400); }
+function net(ok,txt){ const n=$("#netstatus"); n.textContent=txt; n.className="ml-auto text-[10px] px-2 py-1 rounded-full "+(ok?"bg-emerald-500/20 text-emerald-100":"bg-red-500/30 text-red-100"); }
+function num(v){ if(v===""||v==null) return null; const n=parseFloat(String(v).replace(",",".")); return isNaN(n)?null:n; }
+function fmtDate(d){ if(!d) return ""; const p=String(d).split("-"); return p.length===3?`${p[2]}/${p[1]}/${p[0]}`:d; }
+function esc(s){ return (s||"").replace(/"/g,"&quot;"); }
 
-/* ============================================================
-   CARREGAR LOJAS
-   ============================================================ */
+/* ===================== LOJAS ===================== */
 async function carregarLojas(){
   try{
-    const {data,error} = await sb.from("mnt_lojas").select("*").eq("ativo",true).order("data_visita",{ascending:true});
+    const {data,error}=await sb.from("mnt_lojas").select("*").eq("ativo",true).order("data_visita",{ascending:true});
     if(error) throw error;
-    LOJAS = data||[];
-    net(true, "online • "+LOJAS.length+" lojas");
+    LOJAS=data||[]; net(true,"online • "+LOJAS.length+" lojas");
+    try{ localStorage.setItem("mnt_lojas_cache",JSON.stringify(LOJAS)); }catch(_){}
   }catch(e){
-    net(false,"offline");
-    toast("Sem conexão — usando cache local");
-    try{ LOJAS = JSON.parse(localStorage.getItem("mnt_lojas_cache")||"[]"); }catch(_){ LOJAS=[]; }
+    net(false,"offline"); toast("Sem conexão — usando cache");
+    try{ LOJAS=JSON.parse(localStorage.getItem("mnt_lojas_cache")||"[]"); }catch(_){ LOJAS=[]; }
   }
-  try{ localStorage.setItem("mnt_lojas_cache", JSON.stringify(LOJAS)); }catch(_){}
-  const sel = $("#selLoja");
-  sel.innerHTML = '<option value="">— selecione a loja —</option>' +
-    LOJAS.map(l=>`<option value="${l.id}">${l.nome} (${l.qtd_climatizadores||0} eq.)${l.data_visita? " • "+fmtDate(l.data_visita):""}</option>`).join("");
+  $("#selLoja").innerHTML='<option value="">— selecione a loja —</option>'+
+    LOJAS.map(l=>`<option value="${l.id}">${l.nome} (${l.qtd_climatizadores||0} eq.)</option>`).join("");
 }
 
-function preencherLoja(id){
-  const l = LOJAS.find(x=>x.id===id);
-  if(!l) return;
-  $("#fCliente").value=l.cliente||""; $("#fCodigo").value=l.codigo||"";
-  $("#fCnpj").value=l.cnpj||""; $("#fEndereco").value=l.endereco||"";
-  $("#fCidade").value=l.cidade_uf||""; $("#fData").value=l.data_visita||"";
-  $("#fProxima").value=l.proxima_visita||"";
-  if(!$("#fVisitaNum").value) $("#fVisitaNum").value="1";
-  buildMatrix(l.qtd_climatizadores||1);
+async function preencherLoja(id){
+  const l=LOJAS.find(x=>x.id===id); if(!l) return;
+  $("#fCliente").value=l.cliente||""; $("#fCodigo").value=l.codigo||""; $("#fCnpj").value=l.cnpj||"";
+  $("#fEndereco").value=l.endereco||""; $("#fCidade").value=l.cidade_uf||""; $("#fData").value=l.data_visita||"";
+  $("#fProxima").value=l.proxima_visita||""; if(!$("#fVisitaNum").value) $("#fVisitaNum").value="1";
+  // pré-preenche a partir do cadastro de equipamentos da loja (visitas anteriores)
+  let reg=[];
+  try{
+    const {data}=await sb.from("mnt_equip_loja").select("*").eq("loja_id",id).eq("ativo",true).order("num",{ascending:true});
+    reg=data||[];
+  }catch(_){}
+  const qtd = reg.length || l.qtd_climatizadores || 1;
+  EQUIPS=[]; for(let i=0;i<qtd;i++) EQUIPS.push(newEquip(i+1, reg[i]));
+  renderCards();
+  if(reg.length) toast("TAGs carregadas do cadastro da loja");
 }
 
-/* ============================================================
-   MATRIZ
-   ============================================================ */
-function cnaSelect(){ return `<select class="cnaselect border rounded px-1 py-1 sys"><option value=""></option><option>C</option><option value="NC">NC</option><option>NA</option></select>`; }
+/* ===================== EQUIPAMENTOS ===================== */
+function newEquip(n, reg){
+  const sys={}; SISTEMAS.forEach(s=>sys[s.key]="C");
+  return {
+    num:n, tag:reg?.tag||"", setor_local:reg?.setor_local||"", num_serie:reg?.num_serie||"",
+    sys, tensao:NOMINAL.tensao, entrada:NOMINAL.entrada, motor:NOMINAL.motor, bomba:NOMINAL.bomba,
+    tTensao:false,tEntrada:false,tMotor:false,tBomba:false,   // "touched"
+    status:"OK", statusTouched:false, obs:"", fotos:{}
+  };
+}
+function computeStatus(e){
+  if(e.statusTouched) return e.status;
+  let st="OK";
+  if(SISTEMAS.some(s=>e.sys[s.key]==="NC")) st="Pendência";
+  if(e.sys.teste_funcional==="NC" && num(e.entrada)===0) st="Inoperante";
+  e.status=st; return st;
+}
+function badge(st){ const c=st==="OK"?"b-ok":st==="Pendência"?"b-pd":"b-in"; return `<span class="badge ${c}">${st}</span>`; }
+function devClass(val,nom,touched){ const v=num(val); if(v===null||!touched) return ""; return Math.abs(v-nom)/nom>TOL?"warn":""; }
 
-function rowHtml(n){
-  return `<tr data-row>
-    <td class="border p-1 text-center">${n}</td>
-    <td class="border p-1"><input class="w-full px-1 tag" placeholder="TAG"></td>
-    <td class="border p-1"><input class="w-full px-1 local" placeholder="Local"></td>
-    <td class="border p-1"><input class="w-full px-1 serie" placeholder="Nº série"></td>
-    ${SISTEMAS.map(()=>`<td class="border p-1 text-center">${cnaSelect()}</td>`).join("")}
-    <td class="border p-1"><input class="w-16 px-1 v_tensao text-right" inputmode="decimal"></td>
-    <td class="border p-1"><input class="w-16 px-1 v_entrada text-right" inputmode="decimal"></td>
-    <td class="border p-1"><input class="w-16 px-1 v_motor text-right" inputmode="decimal"></td>
-    <td class="border p-1"><input class="w-16 px-1 v_bomba text-right" inputmode="decimal"></td>
-    <td class="border p-1"><select class="w-full px-1 status"><option>OK</option><option>Pendência</option><option>Inoperante</option></select></td>
-    <td class="border p-1"><input class="w-full px-1 obs" placeholder="—"></td>
-  </tr>`;
+function cnaOptions(v){ return ["C","NC","NA"].map(o=>`<option ${o===v?"selected":""}>${o}</option>`).join(""); }
+
+function slotInner(i,s){
+  const f=EQUIPS[i].fotos[s.key];
+  if(f) return `<img src="${f}"><span class="rm noprint" onclick="event.stopPropagation();removeFoto(${i},'${s.key}')">✕</span>`;
+  return `<span class="text-lg">＋</span><span>${s.label}</span>`;
 }
 
-function buildMatrix(qtd){
-  const body=$("#matrixBody"); body.innerHTML="";
-  for(let i=1;i<=qtd;i++) body.insertAdjacentHTML("beforeend", rowHtml(i));
-  bindRows();
+function cardHtml(i){
+  const e=EQUIPS[i]; const open=expandAll;
+  const meas=(key,nomKey,label)=>{
+    const tkey={tensao:"tTensao",entrada:"tEntrada",motor:"tMotor",bomba:"tBomba"}[key];
+    const cls=devClass(e[key],NOMINAL[nomKey],e[tkey])+" "+(e[tkey]?"":"ref");
+    return `<div><label class="lbl">${label}</label>
+      <input class="inp ${cls}" id="m-${i}-${key}" inputmode="decimal" value="${e[key]??""}"
+        onfocus="if(!EQUIPS[${i}].${tkey}){this.select();}"
+        oninput="updMeas(${i},'${key}','${nomKey}','${tkey}',this)"></div>`;
+  };
+  return `<div class="border rounded-xl" data-card="${i}">
+    <button class="w-full flex items-center gap-2 px-3 py-2.5 text-left" onclick="toggleCard(${i})">
+      <span class="w-7 h-7 rounded-full navy text-white text-xs flex items-center justify-center font-bold shrink-0">${e.num}</span>
+      <span class="font-semibold text-sm truncate flex-1" id="ct-${i}">${e.tag?esc(e.tag):"(sem TAG)"}</span>
+      <span id="bd-${i}">${badge(computeStatus(e))}</span>
+      <span class="text-slate-400 text-xs" id="cv-${i}">${open?"▲":"▼"}</span>
+    </button>
+    <div class="px-3 pb-3 space-y-3 ${open?"":"hidden"}" id="body-${i}">
+      <div class="grid grid-cols-2 gap-2">
+        <div class="col-span-2"><label class="lbl">TAG / Identificação</label><input class="inp" value="${esc(e.tag)}" oninput="upd(${i},'tag',this.value);document.getElementById('ct-${i}').textContent=this.value||'(sem TAG)'"></div>
+        <div><label class="lbl">Setor / Local</label><input class="inp" value="${esc(e.setor_local)}" oninput="upd(${i},'setor_local',this.value)"></div>
+        <div><label class="lbl">Nº Série</label><input class="inp" value="${esc(e.num_serie)}" oninput="upd(${i},'num_serie',this.value)"></div>
+      </div>
+
+      <div>
+        <div class="lbl">Sistemas (C / NC / NA)</div>
+        <div class="grid grid-cols-2 gap-2">
+          ${SISTEMAS.map(s=>`<div class="flex items-center gap-2">
+            <span class="text-xs flex-1 text-slate-600">${s.label}</span>
+            <select class="inp !w-20 !py-1.5 !px-2 text-sm" onchange="updSys(${i},'${s.key}',this.value)">${cnaOptions(e.sys[s.key])}</select>
+          </div>`).join("")}
+        </div>
+      </div>
+
+      <div>
+        <div class="lbl">Medições (referência pré-preenchida)</div>
+        <div class="grid grid-cols-2 gap-2">
+          ${meas("tensao","tensao","Tensão (V)")}
+          ${meas("entrada","entrada","Corr. entrada (A)")}
+          ${meas("motor","motor","Corr. motor (A)")}
+          ${meas("bomba","bomba","Corr. bomba (A)")}
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2 items-end">
+        <div><label class="lbl">Status</label>
+          <select class="inp" id="st-${i}" onchange="updStatus(${i},this.value)">
+            ${["OK","Pendência","Inoperante"].map(o=>`<option ${o===computeStatus(e)?"selected":""}>${o}</option>`).join("")}
+          </select></div>
+        <div><label class="lbl">Observações</label><input class="inp" value="${esc(e.obs)}" oninput="upd(${i},'obs',this.value)"></div>
+      </div>
+
+      <div>
+        <div class="lbl">📷 Fotos do equipamento</div>
+        <div class="grid grid-cols-3 gap-2">
+          ${FOTO_SLOTS.map(s=>`<div class="photo-slot ${EQUIPS[i].fotos[s.key]?"filled":""}" id="ph-${i}-${s.key}" onclick="pickFoto(${i},'${s.key}')">${slotInner(i,s)}</div>`).join("")}
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderCards(){
+  $("#cards").innerHTML = EQUIPS.map((_,i)=>cardHtml(i)).join("");
   recalc();
 }
-function renumber(){ document.querySelectorAll("#matrixBody tr").forEach((tr,i)=>tr.firstElementChild.textContent=i+1); }
-
-function checkDeviation(inp, nominal){
-  const val=num(inp.value);
-  if(val===null||inp.value===""){ inp.classList.remove("cellwarn"); return; }
-  const dev=Math.abs(val-nominal)/nominal;
-  inp.classList.toggle("cellwarn", dev>TOL);
+function toggleCard(i){
+  const b=$("#body-"+i), v=$("#cv-"+i);
+  const hid=b.classList.toggle("hidden"); v.textContent=hid?"▼":"▲";
 }
+$("#btnExpandAll").onclick=()=>{ expandAll=!expandAll; $("#btnExpandAll").textContent=expandAll?"recolher todos":"expandir todos"; renderCards(); };
 
-function autoStatus(tr){
-  const sys=[...tr.querySelectorAll(".sys")].map(s=>s.value);
-  const teste = tr.querySelector(".sys:last-child")?.value;
-  let st="OK";
-  if(sys.some(v=>v==="NC")) st="Pendência";
-  // heurística: teste funcional NC + entrada zerada/ausente sugere inoperante
-  const entrada=num(tr.querySelector(".v_entrada").value);
-  if(teste==="NC" && (entrada===0)) st="Inoperante";
-  const selStatus=tr.querySelector(".status");
-  if(!selStatus.dataset.touched) selStatus.value=st;
+/* atualizações de estado */
+function upd(i,f,v){ EQUIPS[i][f]=v; saveDraft(); }
+function updSys(i,k,v){ EQUIPS[i].sys[k]=v; refreshStatus(i); saveDraft(); }
+function updStatus(i,v){ EQUIPS[i].status=v; EQUIPS[i].statusTouched=true; $("#bd-"+i).innerHTML=badge(v); recalc(); saveDraft(); }
+function updMeas(i,key,nomKey,tkey,el){
+  EQUIPS[i][key]=el.value; EQUIPS[i][tkey]=true; el.classList.remove("ref");
+  el.classList.toggle("warn", devClass(el.value,NOMINAL[nomKey],true)==="warn");
+  if(key==="entrada") refreshStatus(i);
+  saveDraft();
 }
-
-function bindRows(){
-  document.querySelectorAll("#matrixBody tr").forEach(tr=>{
-    tr.querySelector(".v_tensao").oninput = e=>{checkDeviation(e.target,NOMINAL.tensao);};
-    tr.querySelector(".v_entrada").oninput= e=>{checkDeviation(e.target,NOMINAL.entrada);autoStatus(tr);};
-    tr.querySelector(".v_motor").oninput  = e=>{checkDeviation(e.target,NOMINAL.motor);};
-    tr.querySelector(".v_bomba").oninput  = e=>{checkDeviation(e.target,NOMINAL.bomba);};
-    tr.querySelectorAll(".sys").forEach(s=>s.onchange=()=>{autoStatus(tr);recalc();});
-    tr.querySelector(".status").onchange = e=>{e.target.dataset.touched="1";recalc();};
-  });
+function refreshStatus(i){
+  const e=EQUIPS[i]; if(e.statusTouched) return;
+  const st=computeStatus(e); $("#bd-"+i).innerHTML=badge(st);
+  const sel=$("#st-"+i); if(sel) sel.value=st; recalc();
 }
-
 function recalc(){
-  const rows=document.querySelectorAll("#matrixBody tr");
-  let ok=0,pend=0,inop=0;
-  rows.forEach(tr=>{ const s=tr.querySelector(".status").value;
-    if(s==="OK")ok++; else if(s==="Pendência")pend++; else if(s==="Inoperante")inop++; });
-  $("#rTotal").textContent=rows.length; $("#rOk").textContent=ok; $("#rPend").textContent=pend; $("#rInop").textContent=inop;
-  saveDraft();
+  let ok=0,pd=0,inp=0;
+  EQUIPS.forEach(e=>{ const s=computeStatus(e); if(s==="OK")ok++; else if(s==="Pendência")pd++; else inp++; });
+  $("#rTotal").textContent=EQUIPS.length; $("#rOk").textContent=ok; $("#rPend").textContent=pd; $("#rInop").textContent=inp;
 }
 
-$("#btnAddRow").onclick=()=>{ $("#matrixBody").insertAdjacentHTML("beforeend",rowHtml(document.querySelectorAll("#matrixBody tr").length+1)); bindRows(); recalc(); };
-$("#btnDelRow").onclick=()=>{ const rows=$("#matrixBody").querySelectorAll("tr"); if(rows.length){rows[rows.length-1].remove(); recalc();} };
+$("#btnAddRow").onclick=()=>{ EQUIPS.push(newEquip(EQUIPS.length+1)); renderCards(); saveDraft(); };
+$("#btnDelRow").onclick=()=>{ if(EQUIPS.length){ EQUIPS.pop(); renderCards(); saveDraft(); } };
 
-/* ============================================================
-   FOTOS
-   ============================================================ */
-$("#inpFotos").onchange = async (e)=>{
-  for(const file of e.target.files){
-    const dataUrl = await downscale(file, 1280, 0.72);
-    FOTOS.push({dataUrl, tag:"", local:"", legenda:""});
-  }
-  renderFotos(); e.target.value="";
+/* ===================== FOTOS ===================== */
+let fotoTarget=null;
+function pickFoto(i,key){ fotoTarget={i,key}; $("#hiddenFoto").value=""; $("#hiddenFoto").click(); }
+$("#hiddenFoto").onchange=async(e)=>{
+  const file=e.target.files[0]; if(!file||!fotoTarget) return;
+  const url=await downscale(file,1000,0.6);
+  EQUIPS[fotoTarget.i].fotos[fotoTarget.key]=url;
+  const slot=$("#ph-"+fotoTarget.i+"-"+fotoTarget.key);
+  slot.classList.add("filled"); slot.innerHTML=slotInner(fotoTarget.i,FOTO_SLOTS.find(s=>s.key===fotoTarget.key));
+  saveDraft();
 };
-function downscale(file, maxW, quality){
-  return new Promise(res=>{
-    const img=new Image(); const rd=new FileReader();
-    rd.onload=()=>{ img.onload=()=>{
-      const sc=Math.min(1,maxW/img.width); const w=img.width*sc, h=img.height*sc;
-      const c=document.createElement("canvas"); c.width=w; c.height=h;
-      c.getContext("2d").drawImage(img,0,0,w,h);
-      res(c.toDataURL("image/jpeg",quality));
-    }; img.src=rd.result; };
-    rd.readAsDataURL(file);
-  });
+function removeFoto(i,key){
+  delete EQUIPS[i].fotos[key];
+  const slot=$("#ph-"+i+"-"+key); slot.classList.remove("filled");
+  slot.innerHTML=slotInner(i,FOTO_SLOTS.find(s=>s.key===key)); saveDraft();
 }
-function renderFotos(){
-  $("#fotosGrid").innerHTML = FOTOS.map((f,i)=>`
-    <div class="border rounded-lg p-2 space-y-1">
-      <img src="${f.dataUrl}" class="w-full h-40 object-cover rounded">
-      <div class="grid grid-cols-2 gap-1">
-        <input class="inp" placeholder="TAG/Equip." value="${f.tag}" oninput="FOTOS[${i}].tag=this.value">
-        <input class="inp" placeholder="Local" value="${f.local}" oninput="FOTOS[${i}].local=this.value">
-      </div>
-      <input class="inp" placeholder="Legenda (antes/depois, pendência…)" value="${f.legenda}" oninput="FOTOS[${i}].legenda=this.value">
-      <button class="noprint text-xs text-red-600" onclick="FOTOS.splice(${i},1);renderFotos()">remover</button>
-    </div>`).join("");
-  saveDraft();
+function downscale(file,maxW,q){
+  return new Promise(res=>{ const img=new Image(),rd=new FileReader();
+    rd.onload=()=>{ img.onload=()=>{ const sc=Math.min(1,maxW/img.width),w=img.width*sc,h=img.height*sc;
+      const c=document.createElement("canvas"); c.width=w; c.height=h; c.getContext("2d").drawImage(img,0,0,w,h);
+      res(c.toDataURL("image/jpeg",q)); }; img.src=rd.result; };
+    rd.readAsDataURL(file); });
 }
 
-/* ============================================================
-   RASCUNHO LOCAL (offline)
-   ============================================================ */
-function collect(){
-  const rows=[...document.querySelectorAll("#matrixBody tr")].map((tr,i)=>({
-    num:i+1, tag:tr.querySelector(".tag").value, setor_local:tr.querySelector(".local").value,
-    num_serie:tr.querySelector(".serie").value,
-    eletrico_comando:tr.querySelectorAll(".sys")[0].value, motor:tr.querySelectorAll(".sys")[1].value,
-    ventilacao_transmissao:tr.querySelectorAll(".sys")[2].value, hidraulico_agua:tr.querySelectorAll(".sys")[3].value,
-    placa_evaporativa:tr.querySelectorAll(".sys")[4].value, estrutura_instalacao:tr.querySelectorAll(".sys")[5].value,
-    teste_funcional:tr.querySelectorAll(".sys")[6].value,
-    tensao_v:num(tr.querySelector(".v_tensao").value), corr_entrada_a:num(tr.querySelector(".v_entrada").value),
-    corr_motor_a:num(tr.querySelector(".v_motor").value), corr_bomba_a:num(tr.querySelector(".v_bomba").value),
-    status:tr.querySelector(".status").value, observacoes:tr.querySelector(".obs").value
-  }));
+/* ===================== COLETA / RASCUNHO ===================== */
+function header(){
   return {
-    loja_id:$("#selLoja").value||null, cliente:$("#fCliente").value, loja_nome:(LOJAS.find(l=>l.id===$("#selLoja").value)||{}).nome||$("#fCliente").value,
+    loja_id:$("#selLoja").value||null, cliente:$("#fCliente").value,
+    loja_nome:(LOJAS.find(l=>l.id===$("#selLoja").value)||{}).nome||$("#fCliente").value,
     codigo_loja:$("#fCodigo").value, endereco:$("#fEndereco").value, cidade_uf:$("#fCidade").value, cnpj:$("#fCnpj").value,
     modelo:$("#fModelo").value, data_visita:$("#fData").value||null, visita_trim_num:$("#fVisitaNum").value,
     proxima_visita:$("#fProxima").value||null, num_os:$("#fOs").value, tecnico_nome:$("#fTecnico").value, tecnico_registro_crea:$("#fCrea").value,
     situacao_geral:document.querySelector('input[name=sit]:checked').value, parecer:$("#fParecer").value,
-    total_inspecionados:+$("#rTotal").textContent, total_ok:+$("#rOk").textContent, total_pendencia:+$("#rPend").textContent, total_inoperante:+$("#rInop").textContent,
-    fotos:FOTOS.map(f=>({tag:f.tag,local:f.local,legenda:f.legenda})), rows
+    total_inspecionados:EQUIPS.length, total_ok:+$("#rOk").textContent, total_pendencia:+$("#rPend").textContent, total_inoperante:+$("#rInop").textContent
   };
 }
-function saveDraft(){ try{ localStorage.setItem("mnt_draft", JSON.stringify({...collect(), _fotos:FOTOS})); }catch(_){}}
-function loadDraft(){
-  try{
-    const d=JSON.parse(localStorage.getItem("mnt_draft")||"null"); if(!d) return false;
-    FOTOS = d._fotos||[]; return d;
-  }catch(_){ return false; }
+function saveDraft(){
+  try{ localStorage.setItem("mnt_draft",JSON.stringify({...header(),equips:EQUIPS})); }
+  catch(_){ try{ const light=EQUIPS.map(e=>({...e,fotos:{}})); localStorage.setItem("mnt_draft",JSON.stringify({...header(),equips:light,_nophoto:1})); }catch(__){} }
 }
+function loadDraft(){ try{ return JSON.parse(localStorage.getItem("mnt_draft")||"null"); }catch(_){ return null; } }
 
-/* ============================================================
-   SALVAR NO SUPABASE
-   ============================================================ */
-$("#btnSalvar").onclick = async ()=>{
-  const d=collect();
-  if(!d.data_visita){ toast("Informe a data da visita"); return; }
+/* ===================== SALVAR NO SUPABASE ===================== */
+$("#btnSalvar").onclick=async()=>{
+  const h=header();
+  if(!h.data_visita){ toast("Informe a data da visita"); return; }
   try{
-    const {rows,...visita}=d;
-    visita.status="finalizado";
-    const {data:v,error:e1} = await sb.from("mnt_visitas").insert(visita).select().single();
+    const {data:v,error:e1}=await sb.from("mnt_visitas").insert({...h,status:"finalizado"}).select().single();
     if(e1) throw e1;
-    const eqs = rows.map(r=>({...r, visita_id:v.id}));
-    const {error:e2} = await sb.from("mnt_equipamentos").insert(eqs);
+    const eqs=EQUIPS.map(e=>({
+      visita_id:v.id, num:e.num, tag:e.tag, setor_local:e.setor_local, num_serie:e.num_serie,
+      eletrico_comando:e.sys.eletrico_comando, motor:e.sys.motor, ventilacao_transmissao:e.sys.ventilacao_transmissao,
+      hidraulico_agua:e.sys.hidraulico_agua, placa_evaporativa:e.sys.placa_evaporativa, estrutura_instalacao:e.sys.estrutura_instalacao,
+      teste_funcional:e.sys.teste_funcional, tensao_v:num(e.tensao), corr_entrada_a:num(e.entrada), corr_motor_a:num(e.motor), corr_bomba_a:num(e.bomba),
+      status:computeStatus(e), observacoes:e.obs,
+      fotos: FOTO_SLOTS.filter(s=>e.fotos[s.key]).map(s=>({slot:s.key,label:s.label}))
+    }));
+    const {error:e2}=await sb.from("mnt_equipamentos").insert(eqs);
     if(e2) throw e2;
-    toast("✅ Visita salva no sistema");
+    // atualiza o cadastro de equipamentos da loja (TAGs para próximas visitas)
+    if(h.loja_id){
+      const reg=EQUIPS.map(e=>({loja_id:h.loja_id,num:e.num,tag:e.tag,setor_local:e.setor_local,num_serie:e.num_serie,ativo:true,updated_at:new Date().toISOString()}));
+      await sb.from("mnt_equip_loja").upsert(reg,{onConflict:"loja_id,num"});
+    }
+    toast("✅ Visita salva — TAGs guardadas para a próxima");
     try{ localStorage.removeItem("mnt_draft"); }catch(_){}
-  }catch(err){
-    console.error(err); toast("Erro ao salvar — rascunho mantido no aparelho");
-  }
+  }catch(err){ console.error(err); toast("Erro ao salvar — rascunho mantido no aparelho"); }
 };
 
-/* ============================================================
-   NOVA LOJA
-   ============================================================ */
+/* ===================== NOVA LOJA ===================== */
 $("#btnNovaLoja").onclick=()=>{ $("#modalLoja").classList.remove("hidden"); $("#modalLoja").classList.add("flex"); };
 $("#nlCancel").onclick=()=>{ $("#modalLoja").classList.add("hidden"); $("#modalLoja").classList.remove("flex"); };
-$("#nlSave").onclick=async ()=>{
+$("#nlSave").onclick=async()=>{
   const nome=$("#nlNome").value.trim(); if(!nome){ toast("Informe o nome"); return; }
-  const rec={ cliente:$("#nlCliente").value, nome, codigo:$("#nlCodigo").value, endereco:$("#nlEndereco").value,
-    cidade_uf:$("#nlCidade").value, cnpj:$("#nlCnpj").value, qtd_climatizadores:parseInt($("#nlQtd").value)||0,
-    data_visita:$("#nlData").value||null };
+  const rec={cliente:$("#nlCliente").value,nome,codigo:$("#nlCodigo").value,endereco:$("#nlEndereco").value,
+    cidade_uf:$("#nlCidade").value,cnpj:$("#nlCnpj").value,qtd_climatizadores:parseInt($("#nlQtd").value)||0,data_visita:$("#nlData").value||null};
   try{
-    const {data,error}=await sb.from("mnt_lojas").insert(rec).select().single();
-    if(error) throw error;
-    toast("✅ Loja cadastrada");
-    $("#nlCancel").onclick();
+    const {data,error}=await sb.from("mnt_lojas").insert(rec).select().single(); if(error) throw error;
+    toast("✅ Loja cadastrada"); $("#nlCancel").onclick();
     await carregarLojas(); $("#selLoja").value=data.id; preencherLoja(data.id);
   }catch(err){ console.error(err); toast("Erro ao cadastrar loja"); }
 };
 
-/* ============================================================
-   PDF
-   ============================================================ */
-function pdfHeader(doc, sub){
+/* ===================== PDF ===================== */
+function pdfHeader(doc,sub){
   const W=doc.internal.pageSize.getWidth();
   doc.setFillColor(22,50,79); doc.rect(0,0,W,20,"F");
   doc.setTextColor(255); doc.setFont("helvetica","bold"); doc.setFontSize(14);
@@ -449,166 +444,112 @@ function pdfHeader(doc, sub){
   if(sub){ doc.setFillColor(31,58,95); doc.rect(0,20,W,7,"F"); doc.setTextColor(255);
     doc.setFont("helvetica","bold"); doc.setFontSize(9); doc.text(sub,W/2,25,{align:"center"}); doc.setTextColor(0); }
 }
-
 function gerarPDF(){
-  const d=collect();
-  const {jsPDF}=window.jspdf;
+  const d=header(); const {jsPDF}=window.jspdf;
   const doc=new jsPDF({unit:"mm",format:"a4"});
-  const W=doc.internal.pageSize.getWidth(), H=doc.internal.pageSize.getHeight();
-  const M=12;
+  const W=doc.internal.pageSize.getWidth(),H=doc.internal.pageSize.getHeight(),M=12;
 
-  /* ---------- PÁGINA 1 ---------- */
   pdfHeader(doc,"RELATÓRIO CONSOLIDADO DE MANUTENÇÃO PREVENTIVA — POR LOJA");
   let y=31;
-  doc.setFillColor(255,243,205); doc.rect(M,y,W-2*M,7,"F");
-  doc.setFont("helvetica","bold"); doc.setFontSize(8); doc.setTextColor(60);
+  doc.setFillColor(255,243,205); doc.rect(M,y,W-2*M,7,"F"); doc.setFont("helvetica","bold"); doc.setFontSize(8); doc.setTextColor(60);
   doc.text("Rede de Supermercados  |  Contrato: VISITAS TRIMESTRAIS  |  Modelo: CLIMATIZADOR ROTOPLAST 110T TOUCH (Teto)",W/2,y+4.7,{align:"center"});
   doc.setTextColor(0); y+=12;
-
-  // seção 1
   doc.setFillColor(22,50,79); doc.rect(M,y,W-2*M,6,"F"); doc.setTextColor(255); doc.setFontSize(9);
   doc.text("1. IDENTIFICAÇÃO DA LOJA E DA VISITA",M+2,y+4.2); doc.setTextColor(0); y+=6;
-  const ident=[
-    ["Rede/Cliente",d.cliente,"Loja/Filial",d.loja_nome],
-    ["Código",d.codigo_loja,"CNPJ",d.cnpj],
-    ["Endereço",d.endereco,"Cidade/UF",d.cidade_uf],
-    ["Data da visita",fmtDate(d.data_visita),"Visita trim. Nº",d.visita_trim_num],
-    ["Próxima visita",fmtDate(d.proxima_visita),"Nº da OS",d.num_os],
-    ["Técnico",d.tecnico_nome,"Registro/CREA",d.tecnico_registro_crea]
-  ];
-  doc.autoTable({ startY:y, margin:{left:M,right:M}, theme:"grid",
-    styles:{fontSize:8,cellPadding:1.4}, columnStyles:{0:{fontStyle:"bold",fillColor:[240,242,245],cellWidth:32},2:{fontStyle:"bold",fillColor:[240,242,245],cellWidth:32}},
-    body:ident });
+  doc.autoTable({startY:y,margin:{left:M,right:M},theme:"grid",styles:{fontSize:8,cellPadding:1.4},
+    columnStyles:{0:{fontStyle:"bold",fillColor:[240,242,245],cellWidth:32},2:{fontStyle:"bold",fillColor:[240,242,245],cellWidth:32}},
+    body:[["Rede/Cliente",d.cliente,"Loja/Filial",d.loja_nome],["Código",d.codigo_loja,"CNPJ",d.cnpj],
+      ["Endereço",d.endereco,"Cidade/UF",d.cidade_uf],["Data da visita",fmtDate(d.data_visita),"Visita trim. Nº",d.visita_trim_num],
+      ["Próxima visita",fmtDate(d.proxima_visita),"Nº da OS",d.num_os],["Técnico",d.tecnico_nome,"Registro/CREA",d.tecnico_registro_crea]]});
   y=doc.lastAutoTable.finalY+4;
-
-  // seção 2 resumo
-  doc.setFillColor(22,50,79); doc.rect(M,y,W-2*M,6,"F"); doc.setTextColor(255);
-  doc.text("2. RESUMO DA VISITA",M+2,y+4.2); doc.setTextColor(0); y+=6;
-  doc.autoTable({ startY:y, margin:{left:M,right:M}, theme:"grid", styles:{fontSize:9,cellPadding:1.6},
-    columnStyles:{1:{halign:"center",cellWidth:24,fontStyle:"bold"}},
-    body:[
-      ["Total de equipamentos inspecionados",String(d.total_inspecionados)],
-      ["Equipamentos OK / operando",String(d.total_ok)],
-      ["Equipamentos com pendência",String(d.total_pendencia)],
-      ["Equipamentos inoperantes",String(d.total_inoperante)]
-    ],
-    didParseCell:(h)=>{ if(h.section==="body"&&h.column.index===1){
-      const t=h.row.index; if(t===1)h.cell.styles.fillColor=[214,245,222];
-      if(t===2)h.cell.styles.fillColor=[255,243,205]; if(t===3)h.cell.styles.fillColor=[250,219,216]; } }
-  });
+  doc.setFillColor(22,50,79); doc.rect(M,y,W-2*M,6,"F"); doc.setTextColor(255); doc.text("2. RESUMO DA VISITA",M+2,y+4.2); doc.setTextColor(0); y+=6;
+  doc.autoTable({startY:y,margin:{left:M,right:M},theme:"grid",styles:{fontSize:9,cellPadding:1.6},columnStyles:{1:{halign:"center",cellWidth:24,fontStyle:"bold"}},
+    body:[["Total de equipamentos inspecionados",String(d.total_inspecionados)],["Equipamentos OK / operando",String(d.total_ok)],
+      ["Equipamentos com pendência",String(d.total_pendencia)],["Equipamentos inoperantes",String(d.total_inoperante)]],
+    didParseCell:h=>{ if(h.section==="body"&&h.column.index===1){ const t=h.row.index;
+      if(t===1)h.cell.styles.fillColor=[214,245,222]; if(t===2)h.cell.styles.fillColor=[255,243,205]; if(t===3)h.cell.styles.fillColor=[250,219,216]; } }});
   y=doc.lastAutoTable.finalY+4;
-
-  // seção 3 parecer
-  doc.setFillColor(22,50,79); doc.rect(M,y,W-2*M,6,"F"); doc.setTextColor(255);
-  doc.text("3. PARECER GERAL / OBSERVAÇÕES",M+2,y+4.2); doc.setTextColor(0); y+=8;
-  const mark=v=>d.situacao_geral===v?"(X)":"( )";
-  doc.setFontSize(8);
-  doc.text(`${mark("operando")} Todos operando    ${mark("pendencias")} Pendências registradas    ${mark("corretiva")} Requer nova visita/corretiva`,M+1,y);
-  y+=4;
-  doc.setDrawColor(200); doc.rect(M,y,W-2*M,22);
-  doc.setFontSize(8); doc.text(doc.splitTextToSize(d.parecer||"",W-2*M-4),M+2,y+4);
-  y+=28;
-
-  // assinaturas
-  doc.setFontSize(8);
+  doc.setFillColor(22,50,79); doc.rect(M,y,W-2*M,6,"F"); doc.setTextColor(255); doc.text("3. PARECER GERAL / OBSERVAÇÕES",M+2,y+4.2); doc.setTextColor(0); y+=8;
+  const mk=v=>d.situacao_geral===v?"(X)":"( )"; doc.setFontSize(8);
+  doc.text(`${mk("operando")} Todos operando    ${mk("pendencias")} Pendências registradas    ${mk("corretiva")} Requer nova visita/corretiva`,M+1,y); y+=4;
+  doc.setDrawColor(200); doc.rect(M,y,W-2*M,22); doc.text(doc.splitTextToSize(d.parecer||"",W-2*M-4),M+2,y+4); y+=28;
   doc.line(M,y,M+70,y); doc.line(W-M-70,y,W-M,y);
-  doc.text("Técnico Responsável (nome / assinatura / data)",M,y+4);
-  doc.text("Responsável pela Loja (nome / assinatura / data)",W-M-70,y+4);
+  doc.text("Técnico Responsável (nome / assinatura / data)",M,y+4); doc.text("Responsável pela Loja (nome / assinatura / data)",W-M-70,y+4);
 
-  /* ---------- MATRIZ ---------- */
-  doc.addPage("a4","landscape");
-  const WL=doc.internal.pageSize.getWidth();
+  // matriz (paisagem)
+  doc.addPage("a4","landscape"); const WL=doc.internal.pageSize.getWidth();
   doc.setFillColor(22,50,79); doc.rect(0,0,WL,10,"F"); doc.setTextColor(255); doc.setFont("helvetica","bold"); doc.setFontSize(11);
-  doc.text("CHECKLIST CONSOLIDADO DE MANUTENÇÃO PREVENTIVA (POR LOJA) — "+ (d.loja_nome||""),WL/2,7,{align:"center"}); doc.setTextColor(0);
+  doc.text("CHECKLIST CONSOLIDADO — "+(d.loja_nome||""),WL/2,7,{align:"center"}); doc.setTextColor(0);
   const head=[["Nº","TAG","Setor/Local","Nº Série","Elétr","Motor","Vent","Hidr","Placa","Estr","Teste","Tens(V)","C.Ent","C.Mot","C.Bomba","Status","Observações"]];
-  const body=d.rows.map(r=>[r.num,r.tag,r.setor_local,r.num_serie,r.eletrico_comando,r.motor,r.ventilacao_transmissao,r.hidraulico_agua,r.placa_evaporativa,r.estrutura_instalacao,r.teste_funcional,
-    r.tensao_v??"",r.corr_entrada_a??"",r.corr_motor_a??"",r.corr_bomba_a??"",r.status,r.observacoes]);
-  doc.autoTable({ startY:13, head, body, theme:"grid", styles:{fontSize:6.5,cellPadding:1,halign:"center"},
-    headStyles:{fillColor:[22,50,79],fontSize:6.5}, columnStyles:{1:{halign:"left"},2:{halign:"left"},16:{halign:"left"}},
-    didParseCell:(h)=>{
-      if(h.section!=="body") return;
-      const r=d.rows[h.row.index];
-      // destaca desvios de corrente/tensão
-      const chk=(val,nom)=>val!=null&&val!==""&&Math.abs(val-nom)/nom>TOL;
-      if(h.column.index===11&&chk(r.tensao_v,NOMINAL.tensao)) h.cell.styles.fillColor=[250,219,216];
-      if(h.column.index===12&&chk(r.corr_entrada_a,NOMINAL.entrada)) h.cell.styles.fillColor=[250,219,216];
-      if(h.column.index===13&&chk(r.corr_motor_a,NOMINAL.motor)) h.cell.styles.fillColor=[250,219,216];
-      if(h.column.index===14&&chk(r.corr_bomba_a,NOMINAL.bomba)) h.cell.styles.fillColor=[250,219,216];
-      if(h.column.index===15){ if(r.status==="Pendência")h.cell.styles.fillColor=[255,243,205]; if(r.status==="Inoperante")h.cell.styles.fillColor=[250,219,216]; }
-    }});
+  const body=EQUIPS.map(e=>[e.num,e.tag,e.setor_local,e.num_serie,e.sys.eletrico_comando,e.sys.motor,e.sys.ventilacao_transmissao,e.sys.hidraulico_agua,e.sys.placa_evaporativa,e.sys.estrutura_instalacao,e.sys.teste_funcional,
+    num(e.tensao)??"",num(e.entrada)??"",num(e.motor)??"",num(e.bomba)??"",computeStatus(e),e.obs]);
+  doc.autoTable({startY:13,head,body,theme:"grid",styles:{fontSize:6.5,cellPadding:1,halign:"center"},headStyles:{fillColor:[22,50,79],fontSize:6.5},
+    columnStyles:{1:{halign:"left"},2:{halign:"left"},16:{halign:"left"}},
+    didParseCell:h=>{ if(h.section!=="body")return; const e=EQUIPS[h.row.index];
+      const chk=(v,n)=>v!=null&&v!==""&&Math.abs(v-n)/n>TOL;
+      if(h.column.index===11&&chk(num(e.tensao),NOMINAL.tensao))h.cell.styles.fillColor=[250,219,216];
+      if(h.column.index===12&&chk(num(e.entrada),NOMINAL.entrada))h.cell.styles.fillColor=[250,219,216];
+      if(h.column.index===13&&chk(num(e.motor),NOMINAL.motor))h.cell.styles.fillColor=[250,219,216];
+      if(h.column.index===14&&chk(num(e.bomba),NOMINAL.bomba))h.cell.styles.fillColor=[250,219,216];
+      if(h.column.index===15){ const s=computeStatus(e); if(s==="Pendência")h.cell.styles.fillColor=[255,243,205]; if(s==="Inoperante")h.cell.styles.fillColor=[250,219,216]; } }});
 
-  /* ---------- DADOS TÉCNICOS ---------- */
-  doc.addPage("a4","portrait");
-  pdfHeader(doc,"DADOS TÉCNICOS DE REFERÊNCIA — ROTOPLAST 110T TOUCH (INMETRO)");
-  doc.autoTable({ startY:32, margin:{left:M,right:M}, theme:"grid", styles:{fontSize:9,cellPadding:1.6},
-    head:[["Característica","Valor nominal"]], headStyles:{fillColor:[22,50,79]},
-    columnStyles:{0:{fontStyle:"bold"},1:{halign:"center"}}, body:DADOS_TEC });
-  doc.setFontSize(7); doc.setTextColor(120);
-  doc.text("Valores nominais de fábrica. Desvios significativos indicam Não Conformidade (NC).",M,doc.lastAutoTable.finalY+5);
-  doc.setTextColor(0);
+  // dados técnicos
+  doc.addPage("a4","portrait"); pdfHeader(doc,"DADOS TÉCNICOS DE REFERÊNCIA — ROTOPLAST 110T TOUCH (INMETRO)");
+  doc.autoTable({startY:32,margin:{left:M,right:M},theme:"grid",styles:{fontSize:9,cellPadding:1.6},head:[["Característica","Valor nominal"]],headStyles:{fillColor:[22,50,79]},
+    columnStyles:{0:{fontStyle:"bold"},1:{halign:"center"}},body:DADOS_TEC});
 
-  /* ---------- FOTOS ---------- */
-  if(FOTOS.length){
-    doc.addPage("a4","portrait");
-    pdfHeader(doc,"REGISTRO FOTOGRÁFICO — POR EQUIPAMENTO / OCORRÊNCIA");
-    let fx=M, fy=32; const colW=(W-2*M-6)/2, imgH=46;
-    FOTOS.forEach((f,i)=>{
-      if(fy+imgH+16>H-M){ doc.addPage("a4","portrait"); pdfHeader(doc,"REGISTRO FOTOGRÁFICO — POR EQUIPAMENTO / OCORRÊNCIA"); fy=32; fx=M; }
-      try{ doc.addImage(f.dataUrl,"JPEG",fx,fy,colW,imgH); }catch(_){}
-      doc.setDrawColor(200); doc.rect(fx,fy,colW,imgH);
-      doc.setFontSize(7);
-      doc.text(`TAG: ${f.tag||"—"}   Local: ${f.local||"—"}`,fx,fy+imgH+4);
-      doc.text(doc.splitTextToSize("Legenda: "+(f.legenda||"—"),colW),fx,fy+imgH+8);
-      if(i%2===0){ fx=M+colW+6; } else { fx=M; fy+=imgH+16; }
+  // anexo fotográfico por equipamento
+  const comFoto=EQUIPS.filter(e=>Object.keys(e.fotos).length);
+  if(comFoto.length){
+    doc.addPage("a4","portrait"); pdfHeader(doc,"REGISTRO FOTOGRÁFICO — POR EQUIPAMENTO"); let y2=32;
+    const colW=(W-2*M-6)/2, imgH=42;
+    comFoto.forEach(e=>{
+      if(y2+8>H-M){ doc.addPage("a4","portrait"); pdfHeader(doc,"REGISTRO FOTOGRÁFICO — POR EQUIPAMENTO"); y2=32; }
+      doc.setFillColor(240,242,245); doc.rect(M,y2,W-2*M,6,"F"); doc.setFontSize(9); doc.setFont("helvetica","bold");
+      doc.text(`Equip. ${e.num} — ${e.tag||"(sem TAG)"}${e.setor_local?"  •  "+e.setor_local:""}`,M+2,y2+4.2); doc.setFont("helvetica","normal"); y2+=8;
+      const slots=FOTO_SLOTS.filter(s=>e.fotos[s.key]); let col=0;
+      slots.forEach(s=>{
+        if(y2+imgH+8>H-M){ doc.addPage("a4","portrait"); pdfHeader(doc,"REGISTRO FOTOGRÁFICO — POR EQUIPAMENTO"); y2=32; col=0; }
+        const x=M+col*(colW+6);
+        try{ doc.addImage(e.fotos[s.key],"JPEG",x,y2,colW,imgH); }catch(_){}
+        doc.setDrawColor(200); doc.rect(x,y2,colW,imgH); doc.setFontSize(7.5); doc.text(s.label,x,y2+imgH+4);
+        if(col===1){ col=0; y2+=imgH+8; } else col=1;
+      });
+      if(col===1) y2+=imgH+8; y2+=3;
     });
   }
-
-  const nomeArq=`Relatorio_Manutencao_${(d.loja_nome||"loja").replace(/\s+/g,"_")}_${d.data_visita||""}.pdf`;
-  doc.save(nomeArq);
+  doc.save(`Relatorio_Manutencao_${(d.loja_nome||"loja").replace(/\s+/g,"_")}_${d.data_visita||""}.pdf`);
   toast("📄 PDF gerado");
 }
 $("#btnPdf").onclick=gerarPDF;
 
-/* ============================================================
-   LIMPAR
-   ============================================================ */
+/* ===================== LIMPAR ===================== */
 $("#btnLimpar").onclick=()=>{
   if(!confirm("Limpar todos os campos desta visita?")) return;
-  FOTOS=[]; renderFotos();
-  document.querySelectorAll("input:not([readonly]),textarea").forEach(el=>{ if(el.type!=="radio"&&el.type!=="file")el.value=""; });
-  const l=$("#selLoja").value; if(l) preencherLoja(l); else buildMatrix(1);
-  try{ localStorage.removeItem("mnt_draft"); }catch(_){}
+  ["fCliente","fCodigo","fCnpj","fEndereco","fCidade","fData","fVisitaNum","fProxima","fOs","fTecnico","fCrea","fParecer"].forEach(id=>$("#"+id).value="");
+  document.querySelector('input[name=sit][value=operando]').checked=true;
+  const l=$("#selLoja").value; try{ localStorage.removeItem("mnt_draft"); }catch(_){}
+  if(l) preencherLoja(l); else { EQUIPS=[newEquip(1)]; renderCards(); }
 };
 
-/* ============================================================
-   INIT
-   ============================================================ */
+/* ===================== INIT ===================== */
 $("#selLoja").onchange=e=>{ if(e.target.value) preencherLoja(e.target.value); };
 $("#btnRecarregar").onclick=carregarLojas;
-document.querySelectorAll("input,textarea,select").forEach(el=>el.addEventListener("input",saveDraft));
+["fCliente","fCodigo","fCnpj","fEndereco","fCidade","fData","fVisitaNum","fProxima","fOs","fTecnico","fCrea","fParecer"].forEach(id=>$("#"+id).addEventListener("input",saveDraft));
+document.querySelectorAll('input[name=sit]').forEach(r=>r.addEventListener("change",saveDraft));
 
 (async function init(){
-  buildMatrix(1);
+  EQUIPS=[newEquip(1)]; renderCards();
   await carregarLojas();
   const d=loadDraft();
-  if(d && confirm("Há um rascunho de visita não finalizado neste aparelho. Deseja restaurar?")){
-    if(d.loja_id){ $("#selLoja").value=d.loja_id; }
-    $("#fCliente").value=d.cliente||""; $("#fCodigo").value=d.codigo_loja||""; $("#fCnpj").value=d.cnpj||"";
-    $("#fEndereco").value=d.endereco||""; $("#fCidade").value=d.cidade_uf||""; $("#fData").value=d.data_visita||"";
-    $("#fVisitaNum").value=d.visita_trim_num||""; $("#fProxima").value=d.proxima_visita||""; $("#fOs").value=d.num_os||"";
-    $("#fTecnico").value=d.tecnico_nome||""; $("#fCrea").value=d.tecnico_registro_crea||""; $("#fParecer").value=d.parecer||"";
+  if(d && d.equips && confirm("Há um rascunho de visita não finalizado neste aparelho. Deseja restaurar?")){
+    if(d.loja_id) $("#selLoja").value=d.loja_id;
+    ["cliente:fCliente","codigo_loja:fCodigo","cnpj:fCnpj","endereco:fEndereco","cidade_uf:fCidade","data_visita:fData","visita_trim_num:fVisitaNum","proxima_visita:fProxima","num_os:fOs","tecnico_nome:fTecnico","tecnico_registro_crea:fCrea","parecer:fParecer"]
+      .forEach(p=>{ const [k,id]=p.split(":"); $("#"+id).value=d[k]||""; });
     if(d.situacao_geral) document.querySelector(`input[name=sit][value=${d.situacao_geral}]`).checked=true;
-    if(d.rows&&d.rows.length){ buildMatrix(d.rows.length);
-      const trs=document.querySelectorAll("#matrixBody tr");
-      d.rows.forEach((r,i)=>{ const tr=trs[i]; if(!tr)return;
-        tr.querySelector(".tag").value=r.tag||""; tr.querySelector(".local").value=r.setor_local||""; tr.querySelector(".serie").value=r.num_serie||"";
-        const sys=tr.querySelectorAll(".sys"); [r.eletrico_comando,r.motor,r.ventilacao_transmissao,r.hidraulico_agua,r.placa_evaporativa,r.estrutura_instalacao,r.teste_funcional].forEach((v,k)=>sys[k].value=v||"");
-        tr.querySelector(".v_tensao").value=r.tensao_v??""; tr.querySelector(".v_entrada").value=r.corr_entrada_a??"";
-        tr.querySelector(".v_motor").value=r.corr_motor_a??""; tr.querySelector(".v_bomba").value=r.corr_bomba_a??"";
-        tr.querySelector(".status").value=r.status||"OK"; tr.querySelector(".status").dataset.touched="1"; tr.querySelector(".obs").value=r.observacoes||"";
-      });
-    }
-    renderFotos(); recalc();
+    EQUIPS=d.equips.map(e=>({...newEquip(e.num),...e,sys:{...newEquip(e.num).sys,...(e.sys||{})},fotos:e.fotos||{}}));
+    renderCards();
+    if(d._nophoto) toast("Rascunho restaurado (fotos não couberam no cache)");
   }
 })();
 </script>
